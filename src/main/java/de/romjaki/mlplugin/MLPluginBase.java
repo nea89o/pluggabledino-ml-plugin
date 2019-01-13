@@ -25,9 +25,12 @@ public class MLPluginBase extends IPlugin {
                 .map(body ->
                         body.getPosition().x
                 )
+                .filter(x ->
+                        x > 0
+                )
                 .min(Float::compareTo)
                 .orElse(10000f);
-        if(cactiPosition < 10f){
+        if (cactiPosition < 10f) {
             event.getWorld().tryJump();
         }
 
