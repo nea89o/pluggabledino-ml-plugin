@@ -1,0 +1,6 @@
+{
+  "name": "ml",
+  "version": "1.0",
+  "class": "de.romjaki.mlplugin.MLPluginBase",
+  "dependencies": []
+}
