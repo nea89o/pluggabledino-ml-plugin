@@ -63,4 +63,12 @@ public class Genetype<T> {
     public T getGene(int i) {
         return (T) data[i];
     }
+
+    public T[] getData(Function<Integer, T[]> arrayGenerator) {
+        T[] array = arrayGenerator.apply(data.length);
+        for (int i = 0; i < data.length; i++) {
+            array[i] = (T) data[i];
+        }
+        return array;
+    }
 }

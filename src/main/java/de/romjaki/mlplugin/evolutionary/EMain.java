@@ -1,38 +1,49 @@
 package de.romjaki.mlplugin.evolutionary;
 
+import de.romjaki.mlplugin.BaseAlgorithm;
+import de.romjaki.pluggabledino.api.Emulator;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static java.lang.Float.max;
+import static java.lang.Float.min;
+
 public class EMain {
-    static String target = "11111111111111110000010100001010100101010";
 
-    public static void main(String[] args) {
+    private static Random random = ThreadLocalRandom.current();
 
-        Population<Character> pop = new Population<Character>(69,
-                random -> new Genetype<Character>(target.length(), () -> (char) random.nextInt(127)));
+    public static void main(String[] args) throws IOException {
+
+        Population<Float> pop = new Population<>(69,
+                random -> new Genetype<>(9, random::nextFloat));
 
         pop.evaluate(EMain::fitness);
-        while (fitness(pop.getFittest()) - target.length() < -0.001f) {
-            System.out.println(show(pop.getFittest()));
-            System.out.println(fitness(pop.getFittest()));
-            pop = pop.decimate(character -> character == '1' ? '0' : '1');
+        int gen = 0;
+        while (fitness(pop.getFittest()) < 500f) {
+            System.out.printf("Generation: %d | %s%n", gen, fitness(pop.getFittest()));
+            gen++;
+            pop = pop.decimate(EMain::changeFloat);
             pop.evaluate(EMain::fitness);
         }
 
-
+        pop.save(new File("network.txt"), Objects::toString);
     }
 
-    private static String show(Genetype<Character> fittest) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < target.length(); i++) {
-            sb.append(fittest.getGene(i));
-        }
-        return sb.toString();
+    private static Float changeFloat(Float fl) {
+        return tween(fl + random.nextFloat() - 0.5f, 0, 1);
     }
 
-    private static float fitness(Genetype<Character> genetype) {
-        int score = 0;
-        for (int i = 0; i < target.length(); i++) {
-            if (genetype.getGene(i) == target.charAt(i))
-                score++;
-        }
-        return (float) score;
+    private static Float tween(float val, float min, float max) {
+        return max(min(val, max), min);
+    }
+
+
+    private static float fitness(Genetype<Float> genetype) {
+        BaseAlgorithm algorithm = new EvolutionaryAlgorithm(genetype.getData(Float[]::new));
+        return Emulator.INSTANCE.emulate(50f, world -> algorithm.getJumpFunction().apply(world));
     }
 }
