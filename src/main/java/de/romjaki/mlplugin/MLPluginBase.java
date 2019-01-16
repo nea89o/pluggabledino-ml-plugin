@@ -6,11 +6,16 @@ import de.romjaki.pluggabledino.api.IPlugin;
 import de.romjaki.pluggabledino.events.GameLostEvent;
 import de.romjaki.pluggabledino.events.GameRenderEvent;
 import de.romjaki.pluggabledino.events.GameUpdateEvent;
+import de.romjaki.pluggabledino.events.InitEvent;
 import org.newdawn.slick.Color;
 
 public class MLPluginBase extends IPlugin {
 
     private float cactiPosition;
+
+    @EventHandler
+    public void onInit(InitEvent event) {
+    }
 
     @EventHandler
     public void onGameLost(GameLostEvent event) {
