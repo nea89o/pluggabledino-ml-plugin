@@ -2,11 +2,17 @@ package de.romjaki.mlplugin.evolutionary;
 
 import de.romjaki.mlplugin.BaseAlgorithm;
 
+/**
+ * Ein Evolutionärer Algorithmus welcher gegeben ein neuronales Netzwerk aus unserer {@link Population} Entscheidungen trifft
+ */
 public class EvolutionaryAlgorithm extends BaseAlgorithm {
 
 
     private Float[] data;
 
+    /**
+     * @param data Die Daten des {@link Genetype}
+     */
     public EvolutionaryAlgorithm(Float[] data) {
         this.data = data;
     }
@@ -24,7 +30,8 @@ public class EvolutionaryAlgorithm extends BaseAlgorithm {
         float layer2 = layer1a * data[6]
                 + layer1b * data[7]
                 + data[8];
-
+        // rechne alle daten miteinander zusammen. Da das Netzwerk nur Gleitkommazahlen verwendet vergleichen wir unser
+        // Endergebnis mit 0.5 um zu entscheiden ob wir springen müssen.
         return layer2 >= 0.5;
     }
 }
