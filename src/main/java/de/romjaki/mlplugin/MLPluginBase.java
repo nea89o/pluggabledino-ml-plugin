@@ -25,8 +25,9 @@ public class MLPluginBase extends IPlugin {
     private float cactiPosition;
 
 
-    List<Genetype<Float>> genetypes = new ArrayList<>();
-    BaseAlgorithm[] algorithm;
+    private List<Genetype<Float>> genetypes = new ArrayList<>();
+    private BaseAlgorithm[] algorithm;
+    private ToggleButton button;
 
     @EventHandler
     public void onInit(InitEvent event) {
@@ -42,9 +43,10 @@ public class MLPluginBase extends IPlugin {
                 new DefaultAlgorithm(),
                 new EvolutionaryAlgorithm(genetypes.get(0).getData(Float[]::new))
         };
-        event.getSettings().addSettingsElement(new ToggleButton(Arrays.asList(
+        button = new ToggleButton(Arrays.asList(
                 "Default", "Evolved"
-        ), MainKt.HEIGHT * 2 / 3f, MainKt.WIDTH / 2f));
+        ), MainKt.HEIGHT * 2 / 3f, MainKt.WIDTH / 2f);
+        event.getSettings().addSettingsElement(button);
     }
 
     @EventHandler
@@ -55,8 +57,8 @@ public class MLPluginBase extends IPlugin {
     @EventHandler
     public void onUpdate(GameUpdateEvent event) {
         event.getWorld().getBirdd().clear();
-        if (new EvolutionaryAlgorithm(genetypes.get(genetypes.size() - 1).getData(Float[]::new))
-                .getJumpFunction().apply(event.getWorld()))
+
+        if (algorithm[button.getIndex()].getJumpFunction().apply(event.getWorld()))
             event.getWorld().tryJump();
     }
 
