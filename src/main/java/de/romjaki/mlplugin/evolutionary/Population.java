@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,12 +38,30 @@ public class Population<T> {
         this.populationSize = population.length;
     }
 
-    public void evaluate(Function<Genetype<T>, Float> evaluator)
-
-    {
+    public void evaluate(Function<Genetype<T>, Float> evaluator) {
         this.fitness = new float[populationSize];
-        for (int i = 0; i < populationSize; i++) {
-            this.fitness[i] = evaluator.apply((Genetype<T>) population[i]);
+        List<Thread> threads = new ArrayList<>();
+        AtomicInteger threadcount = new AtomicInteger();
+        try {
+
+            for (int i = 0; i < populationSize; i++) {
+                int[] j = new int[]{i};
+                while (threadcount.get() > 8) Thread.sleep(1);
+
+                threadcount.incrementAndGet();
+                Thread t = new Thread(() -> {
+                    this.fitness[j[0]] = evaluator.apply((Genetype<T>) population[j[0]]);
+                    threadcount.decrementAndGet();
+                });
+                t.start();
+
+                threads.add(t);
+            }
+            for (Thread thread : threads) {
+                thread.join();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -82,8 +101,8 @@ public class Population<T> {
     }
 
     public static <T> Population<T> deserialize(String text, Function<String, T> reader) {
-        return new Population<>(Arrays.stream(text.split("\n"))
-                .map(string -> Genetype.deserialize(text, reader))
+        return new Population<>(Arrays.stream(text.split("[\\n\\r]+"))
+                .map(string -> Genetype.deserialize(string, reader))
                 .toArray(Genetype[]::new));
     }
 
@@ -92,6 +111,10 @@ public class Population<T> {
     }
 
     public static <T> Population<T> load(File file, Function<String, T> reader) throws IOException {
-        return deserialize(new String(Files.readAllBytes(file.toPath())), reader);
+        return deserialize(new String(Files.readAllBytes(file.toPath())).replaceAll("\r", ""), reader);
+    }
+
+    public Genetype<T> getRandom() {
+        return population[random.nextInt(populationSize)];
     }
 }

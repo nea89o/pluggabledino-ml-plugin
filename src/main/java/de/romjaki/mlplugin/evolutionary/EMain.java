@@ -18,7 +18,7 @@ public class EMain {
 
     public static void main(String[] args) throws IOException {
 
-        Population<Float> pop = new Population<>(69,
+        Population<Float> pop = new Population<>(100,
                 random -> new Genetype<>(9, random::nextFloat));
 
         pop.evaluate(EMain::fitness);
@@ -29,12 +29,12 @@ public class EMain {
             pop = pop.decimate(EMain::changeFloat);
             pop.evaluate(EMain::fitness);
         }
-
+        System.out.printf("Finished with  a score of %s after %d generations.%n", fitness(pop.getFittest()), gen);
         pop.save(new File("network.txt"), Objects::toString);
     }
 
     private static Float changeFloat(Float fl) {
-        return tween(fl + random.nextFloat() - 0.5f, 0, 1);
+        return tween(fl + random.nextFloat() - 0.5f, -1, 1);
     }
 
     private static Float tween(float val, float min, float max) {
@@ -42,8 +42,8 @@ public class EMain {
     }
 
 
-    private static float fitness(Genetype<Float> genetype) {
+    public static float fitness(Genetype<Float> genetype) {
         BaseAlgorithm algorithm = new EvolutionaryAlgorithm(genetype.getData(Float[]::new));
-        return Emulator.INSTANCE.emulate(50f, world -> algorithm.getJumpFunction().apply(world));
+        return Emulator.INSTANCE.emulate(15f, world -> algorithm.getJumpFunction().apply(world), true);
     }
 }

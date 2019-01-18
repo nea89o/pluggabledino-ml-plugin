@@ -28,6 +28,6 @@ public abstract class BaseAlgorithm {
                         x > 0
                 )
                 .min(Float::compareTo)
-                .orElse(10000f);
+                .orElse(0f);
     }
 }
